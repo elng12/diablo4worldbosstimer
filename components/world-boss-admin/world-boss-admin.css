@@ -1,0 +1,363 @@
+/* Admin World Boss — dark compact UI, reuses --wb-* CSS vars */
+
+.wba-page {
+  width: min(var(--wb-shell-max), calc(100% - 32px));
+  margin: 0 auto;
+  padding: 16px 0 48px;
+  display: grid;
+  gap: 14px;
+}
+
+.wba-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--wb-text-primary);
+  margin: 0;
+}
+
+/* --- Token bar --- */
+.wba-token-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--wb-border-subtle);
+  border-radius: 8px;
+  background: var(--wb-bg-card);
+}
+
+.wba-token-bar input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--wb-border-subtle);
+  border-radius: 6px;
+  background: var(--wb-bg-page);
+  color: var(--wb-text-primary);
+  font-family: var(--wb-font-mono);
+  font-size: 13px;
+}
+
+.wba-token-bar input::placeholder {
+  color: var(--wb-text-muted);
+}
+
+.wba-token-bar .wba-status {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.wba-token-bar .wba-status--ok { color: var(--wb-confirmed); }
+.wba-token-bar .wba-status--err { color: var(--wb-needs-verification); }
+
+/* --- Section card --- */
+.wba-section {
+  padding: 14px;
+  border: 1px solid var(--wb-border-subtle);
+  border-radius: 8px;
+  background: var(--wb-bg-card);
+  display: grid;
+  gap: 10px;
+}
+
+.wba-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--wb-text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wba-section-title [data-icon] {
+  width: 16px;
+  height: 16px;
+  color: var(--wb-accent-gold);
+}
+
+/* --- Tables --- */
+.wba-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.wba-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.wba-table th {
+  padding: 6px 8px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--wb-text-muted);
+  border-bottom: 1px solid var(--wb-border-subtle);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wba-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--wb-border-subtle);
+  color: var(--wb-text-secondary);
+  font-family: var(--wb-font-mono);
+}
+
+.wba-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.wba-table .wba-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.wba-badge--confirmed {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--wb-confirmed);
+}
+
+.wba-badge--predicted {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--wb-predicted);
+}
+
+.wba-badge--needs-verification {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--wb-needs-verification);
+}
+
+.wba-badge--override {
+  background: rgba(214, 168, 79, 0.15);
+  color: var(--wb-accent-gold);
+}
+
+.wba-badge--open {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--wb-needs-verification);
+}
+
+.wba-badge--resolved {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--wb-confirmed);
+}
+
+.wba-badge--ignored {
+  background: rgba(113, 113, 122, 0.15);
+  color: var(--wb-text-muted);
+}
+
+/* --- Forms --- */
+.wba-form {
+  display: grid;
+  gap: 8px;
+}
+
+.wba-field {
+  display: grid;
+  gap: 3px;
+}
+
+.wba-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--wb-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wba-field input,
+.wba-field select,
+.wba-field textarea {
+  padding: 6px 10px;
+  border: 1px solid var(--wb-border-subtle);
+  border-radius: 6px;
+  background: var(--wb-bg-page);
+  color: var(--wb-text-primary);
+  font-size: 13px;
+  font-family: var(--wb-font-mono);
+}
+
+.wba-field textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.wba-field input::placeholder,
+.wba-field textarea::placeholder {
+  color: var(--wb-text-muted);
+}
+
+.wba-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* --- Buttons --- */
+.wba-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--wb-duration-fast) var(--wb-ease-standard);
+}
+
+.wba-btn--primary {
+  background: var(--wb-primary);
+  color: var(--wb-text-primary);
+}
+
+.wba-btn--primary:hover {
+  background: var(--wb-primary-hover);
+}
+
+.wba-btn--primary:active {
+  background: var(--wb-primary-active);
+}
+
+.wba-btn--secondary {
+  background: var(--wb-bg-card-elevated);
+  color: var(--wb-text-secondary);
+  border: 1px solid var(--wb-border-subtle);
+}
+
+.wba-btn--secondary:hover {
+  background: var(--wb-border-subtle);
+  color: var(--wb-text-primary);
+}
+
+.wba-btn--sm {
+  padding: 3px 8px;
+  font-size: 11px;
+  border-radius: 4px;
+}
+
+.wba-btn--gold {
+  background: rgba(214, 168, 79, 0.15);
+  color: var(--wb-accent-gold);
+  border: 1px solid var(--wb-accent-gold-muted);
+}
+
+.wba-btn--gold:hover {
+  background: rgba(214, 168, 79, 0.25);
+}
+
+.wba-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Response / result messages --- */
+.wba-result {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--wb-font-mono);
+}
+
+.wba-result--ok {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--wb-confirmed);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.wba-result--err {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--wb-needs-verification);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* --- Empty state --- */
+.wba-empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--wb-text-muted);
+  font-size: 13px;
+}
+
+/* --- Loading spinner --- */
+.wba-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--wb-border-subtle);
+  border-top-color: var(--wb-accent-gold);
+  border-radius: 50%;
+  animation: wba-spin 0.6s linear infinite;
+}
+
+@keyframes wba-spin {
+  to { transform: rotate(360deg); }
+}
+
+.wba-spin {
+  animation: wba-spin 0.6s linear infinite;
+}
+
+/* --- Announcement toggle --- */
+.wba-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wba-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--wb-border-subtle);
+  border: 0;
+  cursor: pointer;
+  transition: background var(--wb-duration-fast) var(--wb-ease-standard);
+  flex-shrink: 0;
+}
+
+.wba-toggle[aria-checked="true"] {
+  background: var(--wb-confirmed);
+}
+
+.wba-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--wb-text-primary);
+  transition: transform var(--wb-duration-fast) var(--wb-ease-standard);
+}
+
+.wba-toggle[aria-checked="true"]::after {
+  transform: translateX(16px);
+}
+
+.wba-toggle-label {
+  font-size: 13px;
+  color: var(--wb-text-secondary);
+}
+
+/* --- Responsive --- */
+@media (min-width: 768px) {
+  .wba-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+}
