@@ -76,7 +76,7 @@ export const seoSections = [
     heading: 'Diablo 4 World Boss Locations',
     paragraphs: [
       'The Diablo 4 world boss locations section helps you reach the arena faster. Instead of forcing you to open a large map first, the page highlights the current spawn point, region, nearby waypoint, and short route note.',
-      'Core spawn locations include The Crucible in Fractured Peaks, Caen Adar in Scosglen, Saraan Caldera in Dry Steppes, Seared Basin in Kehjistan, and Fields of Desecration in Hawezar. If a waypoint has not been manually verified yet, the page displays it as a suggested waypoint.',
+      'Core spawn locations include The Crucible in Fractured Peaks, Caen Alderwood in Scosglen, Saraan Caldera in Scosglen, Writhing Mire in Dry Steppes, Seared Basin in Kehjistan, and Krannik Hold in Hawezar. If a waypoint has not been manually verified yet, the page displays it as a suggested waypoint.',
     ],
   },
   {
