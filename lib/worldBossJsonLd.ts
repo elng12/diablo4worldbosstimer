@@ -2,7 +2,7 @@ import { faqItems } from '@/content/worldBossContent';
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
-const pageUrl = `${siteUrl.replace(/\/$/, '')}/diablo-4-world-boss-timer/`;
+const pageUrl = `${siteUrl.replace(/\/$/, '')}/`;
 
 export function getWorldBossJsonLd() {
   return [

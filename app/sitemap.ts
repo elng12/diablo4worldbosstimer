@@ -6,7 +6,7 @@ const siteUrl =
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: `${siteUrl}/diablo-4-world-boss-timer/`,
+      url: `${siteUrl}/`,
       lastModified: new Date(),
       changeFrequency: 'hourly',
       priority: 1.0,
