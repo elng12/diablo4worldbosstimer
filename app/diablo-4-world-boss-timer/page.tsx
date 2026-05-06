@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description:
     'Track the next Diablo 4 world boss with a live countdown, local spawn time, schedule, locations, reminders, and reward notes before your next run starts.',
   alternates: {
-    canonical: '/',
+    canonical: 'https://diablo4worldbosstimer.live/',
   },
   openGraph: {
     title: 'Diablo 4 World Boss Timer – Next Spawn, Schedule & Locations',
