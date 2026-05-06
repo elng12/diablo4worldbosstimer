@@ -7,16 +7,16 @@ import { getWorldBossJsonLd } from '@/lib/worldBossJsonLd';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Diablo 4 World Boss Timer – Next Spawn, Schedule & Locations',
+  title: 'Diablo 4 World Boss Timer - D4 World Boss Tracker',
   description:
-    'Track the next Diablo 4 world boss with a live countdown, local spawn time, schedule, locations, reminders, and reward notes before your next run starts.',
+    'Use the Diablo 4 World Boss Timer and Diablo 4 World Boss Tracker to check the next spawn, D4 world boss timer schedule, locations, reminders, and rewards.',
   alternates: {
     canonical: 'https://diablo4worldbosstimer.live/',
   },
   openGraph: {
-    title: 'Diablo 4 World Boss Timer – Next Spawn, Schedule & Locations',
+    title: 'Diablo 4 World Boss Timer - D4 World Boss Tracker',
     description:
-      'Track the next Diablo 4 world boss with a live countdown, local spawn time, schedule, locations, reminders, and reward notes before your next run starts.',
+      'Use the Diablo 4 World Boss Timer and Diablo 4 World Boss Tracker to check the next spawn, D4 world boss timer schedule, locations, reminders, and rewards.',
     url: '/',
     type: 'website',
     images: [
@@ -29,34 +29,27 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Diablo 4 World Boss Timer – Next Spawn, Schedule & Locations',
+    title: 'Diablo 4 World Boss Timer - D4 World Boss Tracker',
     description:
-      'Track the next Diablo 4 world boss with a live countdown, local spawn time, schedule, locations, reminders, and reward notes before your next run starts.',
+      'Use the Diablo 4 World Boss Timer and Diablo 4 World Boss Tracker to check the next spawn, D4 world boss timer schedule, locations, reminders, and rewards.',
     images: ['/og-image.png'],
   },
 };
 
 export default async function Page() {
-  const jsonLd = getWorldBossJsonLd();
   const initialCurrent = await getCurrentWorldBoss().catch(() => mockCurrentResponse);
+  const jsonLd = getWorldBossJsonLd(initialCurrent.event);
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd[0]) }}
-      />
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd[1]) }}
-      />
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd[2]) }}
-      />
+      {jsonLd.map((schema) => (
+        <script
+          key={`${schema['@type']}-${'name' in schema ? schema.name : 'schema'}`}
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
       <WorldBossTimerPage initialCurrent={initialCurrent} />
     </>
   );

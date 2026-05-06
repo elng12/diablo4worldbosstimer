@@ -361,8 +361,8 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
       <section className="wb-title-block" aria-labelledby="page-title">
         <h1 id="page-title">Diablo 4 World Boss Timer</h1>
         <p>
-          Next spawn, local time, current location, reminder, and accuracy status in
-          one compact tool.
+          Diablo 4 World Boss Timer and Diablo 4 World Boss Tracker for the next
+          spawn, local time, current location, reminder, and accuracy status.
         </p>
       </section>
 
@@ -576,7 +576,7 @@ function Header({
   return (
     <header className="wb-header">
       <a className="wb-brand" href="#page-title">
-        D4 Boss Timer
+        D4 World Boss Timer
       </a>
       <nav className="wb-desktop-nav" aria-label="Primary navigation">
         <a href="#schedule">Schedule</a>
@@ -612,7 +612,7 @@ function MobileMenu({
   return (
     <div className="wb-mobile-menu" id="mobile-menu" role="dialog" aria-modal="true">
       <div className="wb-mobile-menu__top">
-        <span>D4 Boss Timer</span>
+        <span>D4 World Boss Timer</span>
         <button type="button" onClick={onClose} aria-label="Close menu">
           <X size={18} />
         </button>
@@ -673,8 +673,8 @@ function TimerCard({
     return (
       <article className="wb-card wb-timer-card wb-error-card">
         <ShieldAlert size={20} />
-        <h2>Unable to load the next World Boss.</h2>
-        <p>Live data needs a retry before the next event can be shown.</p>
+        <h2>Unable to load the next Diablo 4 world boss.</h2>
+        <p>The Diablo 4 World Boss Timer needs a retry before the next event can be shown.</p>
         <button className="wb-primary-button" type="button" onClick={onRetry}>
           <RefreshCw size={15} />
           Retry
@@ -686,10 +686,10 @@ function TimerCard({
   if (!event) {
     return (
       <article className="wb-card wb-timer-card">
-        <p className="wb-eyebrow">Next World Boss</p>
+        <p className="wb-eyebrow">Next Diablo 4 World Boss</p>
         <h2>Schedule anchor needs verification.</h2>
         <p className="wb-muted">
-          Countdown is hidden until a confirmed UTC anchor is available.
+          Diablo 4 World Boss Timer countdown is hidden until a confirmed UTC anchor is available.
         </p>
         <button className="wb-secondary-button" type="button" onClick={onReport}>
           Report Wrong Time
@@ -701,13 +701,13 @@ function TimerCard({
   return (
     <article className="wb-card wb-timer-card">
       <div className="wb-card-row">
-        <p className="wb-eyebrow">Next World Boss</p>
+        <p className="wb-eyebrow">Next Diablo 4 World Boss</p>
         <ConfidenceBadge status={event.confidence_status} />
       </div>
       <h2>{event.boss_name}</h2>
       {checkingNext ? (
         <p className="wb-countdown wb-countdown--checking" aria-live="polite">
-          Checking next World Boss spawn...
+          Checking next Diablo 4 world boss spawn...
         </p>
       ) : (
         <p className="wb-countdown" aria-live="polite" suppressHydrationWarning>
@@ -771,7 +771,7 @@ function SchedulePanel({
   return (
     <aside className="wb-card wb-schedule-card" id="schedule">
       <div className="wb-card-row">
-        <h2>Upcoming World Boss Schedule</h2>
+        <h2>Upcoming Diablo 4 World Boss Schedule</h2>
         <span>{events.length} events</span>
       </div>
       {scheduleStatus === 'loading' ? <Skeleton label="Loading schedule..." /> : null}
@@ -784,7 +784,7 @@ function SchedulePanel({
         </div>
       ) : null}
       {scheduleStatus === 'idle' && events.length === 0 ? (
-        <p className="wb-muted">No upcoming World Boss events are available yet.</p>
+        <p className="wb-muted">No upcoming Diablo 4 world boss events are available yet.</p>
       ) : null}
       {scheduleStatus === 'idle' && events.length > 0 ? (
         <div className="wb-schedule-list">
@@ -823,7 +823,7 @@ function LocationCard({
   return (
     <section className="wb-card" id="locations">
       <h2>Diablo 4 World Boss Locations</h2>
-      <h3>Current World Boss Location</h3>
+      <h3>Current Diablo 4 World Boss Location</h3>
       {event ? (
         <>
           <p className="wb-location-name">{event.location_name || 'Location unknown'}</p>
@@ -877,7 +877,7 @@ function AccuracyPanel({
 }) {
   return (
     <section className="wb-card">
-      <h2>Timer Accuracy</h2>
+      <h2>Diablo 4 Boss Timer Accuracy</h2>
       {event ? <ConfidenceBadge status={event.confidence_status} /> : null}
       <p>{accuracyCopy}</p>
       <p className="wb-muted" suppressHydrationWarning>
@@ -917,13 +917,14 @@ function ReminderPanel({
   return (
     <section className="wb-card wb-reminder-panel" aria-label="Reminder panel">
       <div className="wb-card-row">
-        <h2>Set a World Boss Reminder</h2>
+        <h2>Set a D4 World Boss Timer Reminder</h2>
         <button type="button" onClick={onClose} aria-label="Close reminder panel">
           <X size={18} />
         </button>
       </div>
       <p className="wb-muted">
-        Choose when to be reminded before {event?.boss_name || 'the next boss'} spawns.
+        Choose when the D4 World Boss Timer should remind you before{' '}
+        {event?.boss_name || 'the next boss'} spawns.
       </p>
       <div className="wb-reminder-options">
         {[5, 15, 30, 60].map((lead) => (

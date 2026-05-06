@@ -1,10 +1,46 @@
 import { faqItems } from '@/content/worldBossContent';
+import type { WorldBossEventDto } from '@/types/worldBoss';
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 const pageUrl = `${siteUrl.replace(/\/$/, '')}/`;
 
-export function getWorldBossJsonLd() {
+export type JsonLdSchema = Record<string, unknown> & {
+  '@context': string;
+  '@type': string;
+  name?: string;
+};
+
+function getEventJsonLd(event: WorldBossEventDto | null): JsonLdSchema | null {
+  if (!event) return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: `Diablo 4 World Boss: ${event.boss_name}`,
+    startDate: event.spawn_time_utc,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OnlineEventAttendanceMode',
+    url: pageUrl,
+    location: {
+      '@type': 'Place',
+      name: event.location_name || 'Diablo 4 world boss arena',
+      address: {
+        '@type': 'PostalAddress',
+        addressRegion: event.region || 'Sanctuary',
+      },
+    },
+    description: `Next Diablo 4 world boss spawn for ${event.boss_name} with live countdown, local time, location, and confidence status.`,
+  };
+}
+
+function isSchema(schema: JsonLdSchema | null): schema is JsonLdSchema {
+  return schema !== null;
+}
+
+export function getWorldBossJsonLd(
+  event: WorldBossEventDto | null = null,
+): JsonLdSchema[] {
   return [
     {
       '@context': 'https://schema.org',
@@ -40,11 +76,13 @@ export function getWorldBossJsonLd() {
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: 'Diablo 4 World Boss Timer',
+      alternateName: ['Diablo 4 World Boss Tracker', 'D4 World Boss Timer', 'Diablo 4 Boss Timer'],
       url: pageUrl,
       applicationCategory: 'GameApplication',
       operatingSystem: 'Any',
       description:
-        'Track the next Diablo 4 world boss with a live countdown, local spawn time, schedule, locations, reminders, and reward notes.',
+        'Use the Diablo 4 World Boss Timer and Diablo 4 World Boss Tracker to check the next spawn, D4 world boss timer schedule, locations, reminders, and reward notes.',
     },
-  ];
+    getEventJsonLd(event),
+  ].filter(isSchema);
 }
