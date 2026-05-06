@@ -81,7 +81,7 @@ export function getWorldBossJsonLd(
       applicationCategory: 'GameApplication',
       operatingSystem: 'Any',
       description:
-        'Use the Diablo 4 World Boss Timer and Diablo 4 World Boss Tracker to check the next spawn, D4 world boss timer schedule, locations, reminders, and reward notes.',
+        'Use Diablo 4 World Boss Timer schedule and Diablo 4 World Boss Tracker guide to check the next spawn, local time, locations, alerts, and reward notes.',
     },
     getEventJsonLd(event),
   ].filter(isSchema);

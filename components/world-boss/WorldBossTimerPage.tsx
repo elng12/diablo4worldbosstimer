@@ -165,7 +165,7 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
     if (event.confidence_status === 'Needs verification') {
       return 'This spawn needs timing or location review before you rely on it.';
     }
-    return 'Generated from the current world boss rotation.';
+    return 'Predicted by rotation logic.';
   }, [event]);
 
   async function refetchCurrent(variant?: string) {
@@ -361,8 +361,9 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
       <section className="wb-title-block" aria-labelledby="page-title">
         <h1 id="page-title">Diablo 4 World Boss Timer</h1>
         <p>
-          Diablo 4 World Boss Timer and Diablo 4 World Boss Tracker for the next
-          spawn, local time, current location, reminder, and accuracy status.
+          Schedule the next spawn with Diablo 4 World Boss Timer and compare it
+          with Diablo 4 World Boss Tracker for local time, location, alerts, and
+          accuracy status.
         </p>
       </section>
 
@@ -586,7 +587,7 @@ function Header({
       </nav>
       <button className="wb-header-cta" type="button" onClick={onReminder}>
         <Bell size={15} />
-        Remind Me
+        Set Alert
       </button>
       <button
         className="wb-menu-button"
@@ -628,7 +629,7 @@ function MobileMenu({
         </a>
       ))}
       <button type="button" onClick={onReminder}>
-        Remind Me
+        Set Alert
       </button>
     </div>
   );
@@ -674,7 +675,7 @@ function TimerCard({
       <article className="wb-card wb-timer-card wb-error-card">
         <ShieldAlert size={20} />
         <h2>Unable to load the next Diablo 4 world boss.</h2>
-        <p>The Diablo 4 World Boss Timer needs a retry before the next event can be shown.</p>
+        <p>Diablo 4 World Boss Timer needs a retry before the next event can be shown.</p>
         <button className="wb-primary-button" type="button" onClick={onRetry}>
           <RefreshCw size={15} />
           Retry
@@ -743,7 +744,7 @@ function TimerCard({
       <div className="wb-action-row">
         <button className="wb-primary-button" type="button" onClick={onReminder}>
           <Bell size={16} />
-          Remind Me
+          Set Alert
         </button>
         <button className="wb-secondary-button" type="button" onClick={onMap}>
           <Map size={16} />
@@ -799,9 +800,14 @@ function SchedulePanel({
                 <small>{item.region || 'Region unknown'}</small>
               </div>
               <ConfidenceBadge status={item.confidence_status} short />
-              <button type="button" onClick={onReminder} aria-label={`Remind me for ${item.boss_name}`}>
+              <button
+                className="wb-icon-button"
+                type="button"
+                onClick={onReminder}
+                aria-label={`Set alert for ${item.boss_name}`}
+                title="Set alert"
+              >
                 <Bell size={14} />
-                <span>Remind</span>
               </button>
             </div>
           ))}
@@ -917,14 +923,13 @@ function ReminderPanel({
   return (
     <section className="wb-card wb-reminder-panel" aria-label="Reminder panel">
       <div className="wb-card-row">
-        <h2>Set a D4 World Boss Timer Reminder</h2>
+        <h2>Set a World Boss Alert</h2>
         <button type="button" onClick={onClose} aria-label="Close reminder panel">
           <X size={18} />
         </button>
       </div>
       <p className="wb-muted">
-        Choose when the D4 World Boss Timer should remind you before{' '}
-        {event?.boss_name || 'the next boss'} spawns.
+        Choose an alert time before {event?.boss_name || 'the next boss'} spawns.
       </p>
       <div className="wb-reminder-options">
         {[5, 15, 30, 60].map((lead) => (
@@ -952,15 +957,15 @@ function ReminderStateMessage({ state }: { state: ReminderState }) {
     );
   }
   if (state === 'unsupported') {
-    return <p className="wb-warning">Browser notifications are unavailable. Local reminder intent was kept.</p>;
+    return <p className="wb-warning">Browser notifications are unavailable. Local alert intent was kept.</p>;
   }
   if (state === 'denied') {
     return <p className="wb-warning">Notifications are blocked in this browser. Use a device alarm.</p>;
   }
   if (state === 'saved') {
-    return <p className="wb-success"><Check size={15} /> Reminder saved locally for this browser session.</p>;
+    return <p className="wb-success"><Check size={15} /> Alert saved locally for this browser session.</p>;
   }
-  return <p className="wb-muted">Notification permission is requested only after you choose a reminder.</p>;
+  return <p className="wb-muted">Notification permission is requested only after you choose an alert.</p>;
 }
 
 function RewardsCards() {

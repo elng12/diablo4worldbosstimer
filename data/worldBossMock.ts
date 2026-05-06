@@ -21,6 +21,10 @@ function isoNow(): string {
   return new Date().toISOString();
 }
 
+function mockEventId(): string {
+  return crypto.randomUUID();
+}
+
 // ---------------------------------------------------------------------------
 // Boss / Location rotation constants (P0)
 // ---------------------------------------------------------------------------
@@ -83,7 +87,7 @@ function makeEvent(
   const baseMinutes = i * 210 + 15; // first event 15 min from now + 3.5h interval
 
   return {
-    event_id: `wb_mock_${i}_${Date.now()}`,
+    event_id: overrides?.event_id ?? mockEventId(),
     boss_name: boss.boss_name,
     boss_slug: boss.boss_slug,
     spawn_time_utc: minutesFromNow(baseMinutes),

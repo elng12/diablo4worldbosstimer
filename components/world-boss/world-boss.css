@@ -394,6 +394,12 @@
   font-weight: 800;
 }
 
+.wb-schedule-row .wb-icon-button {
+  width: 36px;
+  min-height: 32px;
+  padding: 0;
+}
+
 .wb-location-name {
   color: var(--wb-text-primary) !important;
   font-size: 18px !important;

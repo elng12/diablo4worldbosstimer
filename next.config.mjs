@@ -1,3 +1,8 @@
+const scriptSrc =
+  process.env.NODE_ENV === 'production'
+    ? "'self' 'unsafe-inline'"
+    : "'self' 'unsafe-inline' 'unsafe-eval'";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -25,7 +30,7 @@ const nextConfig = {
           {
             key: 'Content-Security-Policy',
             value:
-              "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'",
+              `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'`,
           },
         ],
       },

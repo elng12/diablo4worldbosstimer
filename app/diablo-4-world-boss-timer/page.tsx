@@ -9,14 +9,14 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Diablo 4 World Boss Timer - D4 World Boss Tracker',
   description:
-    'Use the Diablo 4 World Boss Timer and Diablo 4 World Boss Tracker to check the next spawn, D4 world boss timer schedule, locations, reminders, and rewards.',
+    'Use Diablo 4 World Boss Timer schedule and Diablo 4 World Boss Tracker guide to check the next spawn, local time, locations, alerts, and rewards.',
   alternates: {
     canonical: 'https://diablo4worldbosstimer.live/',
   },
   openGraph: {
     title: 'Diablo 4 World Boss Timer - D4 World Boss Tracker',
     description:
-      'Use the Diablo 4 World Boss Timer and Diablo 4 World Boss Tracker to check the next spawn, D4 world boss timer schedule, locations, reminders, and rewards.',
+      'Use Diablo 4 World Boss Timer schedule and Diablo 4 World Boss Tracker guide to check the next spawn, local time, locations, alerts, and rewards.',
     url: '/',
     type: 'website',
     images: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Diablo 4 World Boss Timer - D4 World Boss Tracker',
     description:
-      'Use the Diablo 4 World Boss Timer and Diablo 4 World Boss Tracker to check the next spawn, D4 world boss timer schedule, locations, reminders, and rewards.',
+      'Use Diablo 4 World Boss Timer schedule and Diablo 4 World Boss Tracker guide to check the next spawn, local time, locations, alerts, and rewards.',
     images: ['/og-image.png'],
   },
 };
