@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { disclaimer, faqItems, rewards, seoSections } from '@/content/worldBossContent';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import type {
   ApiErrorResponse,
   CurrentEventResponse,
@@ -34,6 +35,7 @@ import {
   isResponseStale,
   waypointLabel,
 } from '@/lib/worldBossFormat';
+import type { AnalyticsEventName } from '@/lib/analytics';
 
 type Props = {
   initialCurrent: CurrentEventResponse;
@@ -45,6 +47,12 @@ type ReminderState = 'idle' | 'checking' | 'unsupported' | 'denied' | 'saved';
 type ReportStatus = 'idle' | 'submitting' | 'submitted' | 'error';
 
 const showDevControls = process.env.NODE_ENV !== 'production';
+const reminderAnalyticsEvents: Record<number, AnalyticsEventName> = {
+  5: 'select_reminder_5min',
+  15: 'select_reminder_15min',
+  30: 'select_reminder_30min',
+  60: 'select_reminder_60min',
+};
 
 export function WorldBossTimerPage({ initialCurrent }: Props) {
   const [current, setCurrent] = useState(initialCurrent);
@@ -134,6 +142,19 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [menuOpen]);
 
+  useEffect(() => {
+    trackAnalyticsEvent('view_timer_page');
+    try {
+      const returnVisitKey = 'worldBossTimerVisited';
+      if (window.localStorage.getItem(returnVisitKey)) {
+        trackAnalyticsEvent('return_visit_timer_page');
+      }
+      window.localStorage.setItem(returnVisitKey, '1');
+    } catch {
+      // Storage can be blocked; analytics should never affect the timer.
+    }
+  }, []);
+
   const accuracyCopy = useMemo(() => {
     if (!event) return 'Schedule anchor needs verification.';
     if (event.confidence_status === 'Confirmed') {
@@ -196,12 +217,23 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
   }
 
   function requestMap() {
+    trackAnalyticsEvent('click_view_map', {
+      boss: event?.boss_name,
+      location: event?.location_name,
+    });
     setMapState('loading');
     revealLocationSection();
     window.setTimeout(() => setMapState('open'), 650);
   }
 
   function saveReminder(lead: number) {
+    const reminderAnalyticsEvent = reminderAnalyticsEvents[lead];
+    if (reminderAnalyticsEvent) {
+      trackAnalyticsEvent(reminderAnalyticsEvent, {
+        boss: event?.boss_name,
+        lead_minutes: lead,
+      });
+    }
     setReminderLead(lead);
     setReminderState('checking');
 
@@ -287,6 +319,10 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
       if (!response.ok || !body.ok) {
         throw new Error(body.error?.message || 'Report failed.');
       }
+      trackAnalyticsEvent('submit_error_report', {
+        boss: event?.boss_name,
+        report_type: reportType,
+      });
       setReportStatus('submitted');
     } catch (error) {
       setReportStatus('error');
@@ -299,12 +335,16 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
       <Header
         menuOpen={menuOpen}
         onMenuToggle={() => setMenuOpen((value) => !value)}
-        onReminder={() => setReminderOpen(true)}
+        onReminder={() => {
+          trackAnalyticsEvent('click_remind_me', { source: 'header' });
+          setReminderOpen(true);
+        }}
       />
       {menuOpen ? (
         <MobileMenu
           onClose={() => setMenuOpen(false)}
           onReminder={() => {
+            trackAnalyticsEvent('click_remind_me', { source: 'mobile_menu' });
             setMenuOpen(false);
             setReminderOpen(true);
           }}
@@ -336,16 +376,25 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
           timezoneLabel={timezoneLabel}
           timezoneFailed={timezoneState.failed}
           accuracyCopy={accuracyCopy}
-          onReminder={() => setReminderOpen(true)}
+          onReminder={() => {
+            trackAnalyticsEvent('click_remind_me', { source: 'timer_card' });
+            setReminderOpen(true);
+          }}
           onMap={requestMap}
-          onReport={() => setReportOpen(true)}
+          onReport={() => {
+            trackAnalyticsEvent('click_report_wrong_time', { source: 'timer_card' });
+            setReportOpen(true);
+          }}
           onRetry={() => void refetchCurrent()}
         />
         <SchedulePanel
           events={scheduleEvents}
           scheduleStatus={scheduleStatus}
           onRetry={() => void retrySchedule()}
-          onReminder={() => setReminderOpen(true)}
+          onReminder={() => {
+            trackAnalyticsEvent('click_remind_me', { source: 'schedule' });
+            setReminderOpen(true);
+          }}
         />
       </section>
 
@@ -357,7 +406,10 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
           timezoneLabel={timezoneLabel}
           timezoneFailed={timezoneState.failed}
           accuracyCopy={accuracyCopy}
-          onReport={() => setReportOpen(true)}
+          onReport={() => {
+            trackAnalyticsEvent('click_report_wrong_time', { source: 'accuracy_panel' });
+            setReportOpen(true);
+          }}
         />
       </section>
 
@@ -373,7 +425,17 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
 
       <RewardsCards />
       <SeoContent />
-      <FAQSection expandedFaq={expandedFaq} onToggle={setExpandedFaq} />
+      <FAQSection
+        expandedFaq={expandedFaq}
+        onToggle={(value) => {
+          if (value !== null) {
+            trackAnalyticsEvent('faq_expand', {
+              question: faqItems[value]?.question,
+            });
+          }
+          setExpandedFaq(value);
+        }}
+      />
       <footer className="wb-disclaimer">
         <p>{disclaimer}</p>
       </footer>

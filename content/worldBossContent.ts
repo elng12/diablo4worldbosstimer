@@ -94,10 +94,10 @@ export const seoSections = [
     ],
   },
   {
-    heading: 'Why Use This Diablo 4 World Boss Timer?',
+    heading: 'Why Use This Boss Timer?',
     paragraphs: [
       'This tool is designed to be faster and more focused than a general Diablo 4 event page. The main goal is to answer one question clearly: when and where is the next Diablo 4 world boss?',
-      'Bookmark this Diablo 4 World Boss Timer if you want a quick way to check the next spawn before every session. Future updates can add deeper location pages, a full schedule page, boss-specific reward pages, and additional event tools.',
+      'Bookmark this timer if you want a quick way to check the next spawn before every session. Future updates can add deeper location pages, a full schedule page, boss-specific reward pages, and additional event tools.',
     ],
   },
 ];
