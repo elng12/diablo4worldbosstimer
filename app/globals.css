@@ -84,6 +84,38 @@ a {
   top: 0;
 }
 
+/* Error and not-found pages */
+.wb-error-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--wb-bg-page);
+  color: var(--wb-text-primary);
+  font-family: var(--wb-font-sans);
+  padding: 2rem;
+  text-align: center;
+}
+.wb-error-page h1 { font-size: 2rem; margin-bottom: 1rem; }
+.wb-error-page p { margin-bottom: 1.5rem; color: var(--wb-text-secondary); }
+.wb-error-page a {
+  color: var(--wb-accent-gold);
+  text-decoration: underline;
+  font-size: 1.125rem;
+}
+.wb-error-page .wb-error-btn {
+  color: var(--wb-bg-page);
+  background: var(--wb-accent-gold);
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.wb-error-heading { color: var(--wb-accent-gold); }
+.wb-error-heading-danger { color: var(--wb-needs-verification); }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
