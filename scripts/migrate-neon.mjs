@@ -24,10 +24,11 @@ const DDL_STATEMENTS = [
     interval_minutes       INTEGER NOT NULL DEFAULT 210,
     boss_rotation_index    INTEGER NOT NULL DEFAULT 0,
     location_rotation_index INTEGER NOT NULL DEFAULT 0,
-    season_version         TEXT,
+    season_version         TEXT NOT NULL DEFAULT 'current',
     algorithm_version      TEXT NOT NULL DEFAULT 'world-boss-v1',
-    confidence_status      TEXT NOT NULL DEFAULT 'Confirmed',
-    is_active              BOOLEAN DEFAULT true,
+    confidence_status      TEXT NOT NULL DEFAULT 'Confirmed'
+      CHECK (confidence_status IN ('Predicted', 'Confirmed', 'Needs verification')),
+    is_active              BOOLEAN NOT NULL DEFAULT true,
     source_note            TEXT,
     created_by             TEXT DEFAULT 'admin_api',
     created_at             TIMESTAMPTZ DEFAULT now()
@@ -40,14 +41,17 @@ const DDL_STATEMENTS = [
     region               TEXT,
     location_name        TEXT,
     nearest_waypoint     TEXT,
-    waypoint_confidence  TEXT,
+    waypoint_confidence  TEXT
+      CHECK (waypoint_confidence IS NULL OR waypoint_confidence IN ('Confirmed', 'Suggested', 'Unconfirmed')),
     route_note           TEXT,
-    confidence_status    TEXT NOT NULL DEFAULT 'Predicted',
-    source_type          TEXT NOT NULL DEFAULT 'algorithm',
-    is_overridden        BOOLEAN DEFAULT false,
+    confidence_status    TEXT NOT NULL DEFAULT 'Predicted'
+      CHECK (confidence_status IN ('Predicted', 'Confirmed', 'Needs verification')),
+    source_type          TEXT NOT NULL DEFAULT 'algorithm'
+      CHECK (source_type IN ('algorithm', 'manual_override', 'report_verified')),
+    is_overridden        BOOLEAN NOT NULL DEFAULT false,
     updated_at           TIMESTAMPTZ DEFAULT now(),
-    algorithm_version    TEXT,
-    season_version       TEXT,
+    algorithm_version    TEXT NOT NULL DEFAULT 'world-boss-v1',
+    season_version       TEXT NOT NULL DEFAULT 'current',
     extra_location_note  TEXT,
     UNIQUE (season_version, algorithm_version, spawn_time_utc)
   )`,
@@ -60,9 +64,11 @@ const DDL_STATEMENTS = [
     override_location_name     TEXT,
     override_region            TEXT,
     override_nearest_waypoint  TEXT,
-    override_waypoint_confidence TEXT,
+    override_waypoint_confidence TEXT
+      CHECK (override_waypoint_confidence IS NULL OR override_waypoint_confidence IN ('Confirmed', 'Suggested', 'Unconfirmed')),
     override_route_note        TEXT,
-    override_confidence_status TEXT,
+    override_confidence_status TEXT
+      CHECK (override_confidence_status IS NULL OR override_confidence_status IN ('Predicted', 'Confirmed', 'Needs verification')),
     override_reason            TEXT,
     created_by                 TEXT DEFAULT 'admin_api',
     expires_at                 TIMESTAMPTZ,
@@ -70,13 +76,15 @@ const DDL_STATEMENTS = [
   )`,
   `CREATE TABLE IF NOT EXISTS world_boss_reports (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    event_id      UUID,
-    report_type   TEXT NOT NULL,
+    event_id      UUID REFERENCES world_boss_events(id) ON DELETE SET NULL,
+    report_type   TEXT NOT NULL
+      CHECK (report_type IN ('wrong_time', 'wrong_boss', 'wrong_location', 'no_spawn', 'other')),
     user_note     TEXT,
     user_timezone TEXT,
     displayed_time TEXT,
     page_state    JSONB,
-    status        TEXT NOT NULL DEFAULT 'open',
+    status        TEXT NOT NULL DEFAULT 'open'
+      CHECK (status IN ('open', 'reviewing', 'resolved', 'dismissed')),
     created_at    TIMESTAMPTZ DEFAULT now()
   )`,
   `CREATE TABLE IF NOT EXISTS admin_audit_logs (
@@ -87,6 +95,7 @@ const DDL_STATEMENTS = [
     target_id    TEXT NOT NULL,
     before_value JSONB,
     after_value  JSONB,
+    details      JSONB,
     created_at   TIMESTAMPTZ DEFAULT now()
   )`,
 ];

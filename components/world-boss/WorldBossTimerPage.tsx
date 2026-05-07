@@ -14,7 +14,7 @@ import {
   ShieldAlert,
   X,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { disclaimer, faqItems, rewards, seoSections } from '@/content/worldBossContent';
 import { trackAnalyticsEvent } from '@/lib/analytics';
 import type {
@@ -47,12 +47,76 @@ type ReminderState = 'idle' | 'checking' | 'unsupported' | 'denied' | 'saved';
 type ReportStatus = 'idle' | 'submitting' | 'submitted' | 'error';
 
 const showDevControls = process.env.NODE_ENV !== 'production';
+const REMINDER_STORAGE_KEY = 'd4wb_reminder';
 const reminderAnalyticsEvents: Record<number, AnalyticsEventName> = {
   5: 'select_reminder_5min',
   15: 'select_reminder_15min',
   30: 'select_reminder_30min',
   60: 'select_reminder_60min',
 };
+
+interface ReminderData {
+  eventId: string;
+  spawnTimeUtc: string;
+  reminderLead: number;
+  bossName: string;
+  locationName: string;
+  region: string;
+}
+
+function getReminderFromStorage(): ReminderData | null {
+  try {
+    const stored = window.localStorage.getItem(REMINDER_STORAGE_KEY);
+    if (!stored) return null;
+    return JSON.parse(stored) as ReminderData;
+  } catch {
+    return null;
+  }
+}
+
+function saveReminderToStorage(data: ReminderData): void {
+  try {
+    window.localStorage.setItem(REMINDER_STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // localStorage unavailable -- non-critical
+  }
+}
+
+function clearReminderFromStorage(): void {
+  try {
+    window.localStorage.removeItem(REMINDER_STORAGE_KEY);
+  } catch {
+    // localStorage unavailable -- non-critical
+  }
+}
+
+function scheduleNotificationViaSW(
+  id: string,
+  title: string,
+  body: string,
+  tag: string,
+  delayMs: number,
+): void {
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'SCHEDULE_NOTIFICATION',
+      id,
+      title,
+      body,
+      tag,
+      delayMs,
+    });
+  }
+}
+
+function cancelNotificationViaSW(id: string): void {
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'CANCEL_NOTIFICATION',
+      id,
+    });
+  }
+}
 
 export function WorldBossTimerPage({ initialCurrent }: Props) {
   const [current, setCurrent] = useState(initialCurrent);
@@ -75,7 +139,8 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
     current.event ? getSecondsUntil(current.event.spawn_time_utc) : 0,
   );
   const [checkingNext, setCheckingNext] = useState(false);
-  const [, setStaleTick] = useState(0);
+  const [_staleTick, setStaleTick] = useState(0);
+  const reminderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const event = current.event;
   const [timezoneOverride, setTimezoneOverride] = useState<{
@@ -84,6 +149,8 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
   } | null>(null);
   const timezoneState = timezoneOverride ?? getTimezoneState();
   const timezoneLabel = timezoneState.label;
+  // _staleTick is bumped by a precision setTimeout right when the response goes
+  // stale — avoids the old 30s polling interval while keeping the flag live.
   const stale = isResponseStale(current.generated_at, current.stale_after_seconds);
 
   useEffect(() => {
@@ -108,12 +175,15 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
     };
   }, [event]);
 
+  // When current response changes, schedule a precise stale check
+  // instead of polling every 30 seconds unnecessarily
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setStaleTick((value) => value + 1);
-    }, 30000);
-    return () => window.clearInterval(timer);
-  }, []);
+    const staleAt = new Date(current.generated_at).getTime() + current.stale_after_seconds * 1000;
+    const delay = staleAt - Date.now();
+    if (delay <= 0) return;
+    const timer = window.setTimeout(() => setStaleTick((v) => v + 1), delay);
+    return () => window.clearTimeout(timer);
+  }, [current]);
 
   useEffect(() => {
     const pollTimer = window.setInterval(() => {
@@ -152,6 +222,63 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
       window.localStorage.setItem(returnVisitKey, '1');
     } catch {
       // Storage can be blocked; analytics should never affect the timer.
+    }
+  }, []);
+
+  // Register Service Worker for persistent notifications
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {
+        // SW registration failure is non-critical; main-thread fallback still works.
+      });
+    }
+  }, []);
+
+  // On beforeunload, hand off pending reminder to Service Worker
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const reminder = getReminderFromStorage();
+      if (!reminder) return;
+      const notifyAt = new Date(reminder.spawnTimeUtc).getTime() - reminder.reminderLead * 60000;
+      const delayMs = notifyAt - Date.now();
+      if (delayMs > 0 && navigator.serviceWorker?.controller) {
+        const tag = `d4wb-reminder-${reminder.eventId}`;
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SCHEDULE_NOTIFICATION',
+          id: tag,
+          title: `${reminder.bossName} spawns in ${reminder.reminderLead} min`,
+          body: `Location: ${reminder.locationName || 'Unknown'} — ${reminder.region || 'Unknown region'}`,
+          tag,
+          delayMs,
+        });
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
+  // Restore pending reminder from localStorage on page load
+  useEffect(() => {
+    const reminder = getReminderFromStorage();
+    if (!reminder) return;
+    const notifyAt = new Date(reminder.spawnTimeUtc).getTime() - reminder.reminderLead * 60000;
+    const delayMs = notifyAt - Date.now();
+    if (delayMs > 0) {
+      // Re-schedule via Service Worker
+      const tag = `d4wb-reminder-${reminder.eventId}`;
+      scheduleNotificationViaSW(
+        tag,
+        `${reminder.bossName} spawns in ${reminder.reminderLead} min`,
+        `Location: ${reminder.locationName || 'Unknown'} — ${reminder.region || 'Unknown region'}`,
+        tag,
+        delayMs,
+      );
+      // Restore UI state
+      setReminderLead(reminder.reminderLead);
+      setReminderState('saved');
+    } else {
+      // Reminder has expired; clean up
+      clearReminderFromStorage();
     }
   }, []);
 
@@ -226,6 +353,21 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
     window.setTimeout(() => setMapState('open'), 650);
   }
 
+  function clearReminder() {
+    // Clear any pending main-thread timeout
+    if (reminderTimeoutRef.current !== null) {
+      clearTimeout(reminderTimeoutRef.current);
+      reminderTimeoutRef.current = null;
+    }
+    // Cancel SW notification if applicable
+    const existing = getReminderFromStorage();
+    if (existing) {
+      cancelNotificationViaSW(`d4wb-reminder-${existing.eventId}`);
+    }
+    clearReminderFromStorage();
+    setReminderState('idle');
+  }
+
   function saveReminder(lead: number) {
     const reminderAnalyticsEvent = reminderAnalyticsEvents[lead];
     if (reminderAnalyticsEvent) {
@@ -260,7 +402,7 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
       try {
         window.localStorage.setItem('worldBossReminderLead', String(lead));
       } catch {
-        // localStorage unavailable — non-critical
+        // localStorage unavailable -- non-critical
       }
 
       if (!event) {
@@ -268,17 +410,61 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
         return;
       }
 
+      // Clear any previously scheduled reminder
+      if (reminderTimeoutRef.current !== null) {
+        clearTimeout(reminderTimeoutRef.current);
+        reminderTimeoutRef.current = null;
+      }
+      const existing = getReminderFromStorage();
+      if (existing) {
+        cancelNotificationViaSW(`d4wb-reminder-${existing.eventId}`);
+      }
+
       const spawnTime = new Date(event.spawn_time_utc).getTime();
       const notifyAt = spawnTime - lead * 60 * 1000;
       const delay = notifyAt - Date.now();
+      const notificationTag = `d4wb-reminder-${event.event_id}`;
+      const notificationTitle = `${event.boss_name} spawns in ${lead} min`;
+      const notificationBody = `Location: ${event.location_name || 'Unknown'} — ${event.region || 'Unknown region'}`;
+
+      // Persist reminder data for recovery after page reload
+      saveReminderToStorage({
+        eventId: event.event_id,
+        spawnTimeUtc: event.spawn_time_utc,
+        reminderLead: lead,
+        bossName: event.boss_name,
+        locationName: event.location_name || 'Unknown',
+        region: event.region || 'Unknown region',
+      });
 
       if (delay > 0) {
-        window.setTimeout(() => {
-          new Notification(`${event.boss_name} spawns in ${lead} min`, {
-            body: `Location: ${event.location_name || 'Unknown'} — ${event.region || 'Unknown region'}`,
-            icon: '/favicon.svg',
-            tag: 'world-boss-reminder',
-          });
+        // Schedule via Service Worker (survives page close)
+        scheduleNotificationViaSW(
+          notificationTag,
+          notificationTitle,
+          notificationBody,
+          notificationTag,
+          delay,
+        );
+
+        // Also schedule a main-thread timeout as a visible fallback
+        // when the page is still open (SW notification may not be visible
+        // if the page is in focus on some browsers)
+        reminderTimeoutRef.current = setTimeout(() => {
+          // Only fire main-thread notification if page is visible
+          // (SW handles the case when page is hidden/closed)
+          if (document.visibilityState === 'visible') {
+            try {
+              new Notification(notificationTitle, {
+                body: notificationBody,
+                icon: '/favicon.svg',
+                tag: notificationTag,
+              });
+            } catch {
+              // Notification constructor can fail; SW already covers this
+            }
+          }
+          reminderTimeoutRef.current = null;
         }, delay);
       }
 
@@ -332,6 +518,7 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
 
   return (
     <main className="wb-page">
+      <a href="#wb-timer-card" className="skip-link">Skip to content</a>
       <Header
         menuOpen={menuOpen}
         onMenuToggle={() => setMenuOpen((value) => !value)}
@@ -420,6 +607,7 @@ export function WorldBossTimerPage({ initialCurrent }: Props) {
           reminderLead={reminderLead}
           reminderState={reminderState}
           onLeadSelect={saveReminder}
+          onCancelReminder={clearReminder}
           onClose={() => setReminderOpen(false)}
         />
       ) : null}
@@ -610,6 +798,14 @@ function MobileMenu({
   onClose: () => void;
   onReminder: () => void;
 }) {
+  useEffect(() => {
+    const original = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = original;
+    };
+  }, []);
+
   return (
     <div className="wb-mobile-menu" id="mobile-menu" role="dialog" aria-modal="true">
       <div className="wb-mobile-menu__top">
@@ -664,7 +860,7 @@ function TimerCard({
 }) {
   if (currentStatus === 'loading') {
     return (
-      <article className="wb-card wb-timer-card" aria-busy="true">
+      <article id="wb-timer-card" className="wb-card wb-timer-card" aria-busy="true">
         <Skeleton label="Loading next spawn..." />
       </article>
     );
@@ -672,7 +868,7 @@ function TimerCard({
 
   if (currentStatus === 'error') {
     return (
-      <article className="wb-card wb-timer-card wb-error-card">
+      <article id="wb-timer-card" className="wb-card wb-timer-card wb-error-card">
         <ShieldAlert size={20} />
         <h2>Unable to load the next Diablo 4 world boss.</h2>
         <p>Diablo 4 World Boss Timer needs a retry before the next event can be shown.</p>
@@ -686,7 +882,7 @@ function TimerCard({
 
   if (!event) {
     return (
-      <article className="wb-card wb-timer-card">
+      <article id="wb-timer-card" className="wb-card wb-timer-card">
         <p className="wb-eyebrow">Next Diablo 4 World Boss</p>
         <h2>Schedule anchor needs verification.</h2>
         <p className="wb-muted">
@@ -700,7 +896,7 @@ function TimerCard({
   }
 
   return (
-    <article className="wb-card wb-timer-card">
+    <article id="wb-timer-card" className="wb-card wb-timer-card">
       <div className="wb-card-row">
         <p className="wb-eyebrow">Next Diablo 4 World Boss</p>
         <ConfidenceBadge status={event.confidence_status} />
@@ -912,12 +1108,14 @@ function ReminderPanel({
   reminderLead,
   reminderState,
   onLeadSelect,
+  onCancelReminder,
   onClose,
 }: {
   event: WorldBossEventDto | null;
   reminderLead: number;
   reminderState: ReminderState;
   onLeadSelect: (lead: number) => void;
+  onCancelReminder: () => void;
   onClose: () => void;
 }) {
   return (
@@ -944,6 +1142,11 @@ function ReminderPanel({
         ))}
       </div>
       <ReminderStateMessage state={reminderState} />
+      {reminderState === 'saved' && (
+        <button type="button" className="wb-text-button" onClick={onCancelReminder}>
+          Cancel alert
+        </button>
+      )}
     </section>
   );
 }
@@ -1055,6 +1258,21 @@ function ReportDialog({
   onClose: () => void;
   onSubmitAnother: () => void;
 }) {
+  useEffect(() => {
+    const onKeyDown = (eventArg: KeyboardEvent) => {
+      if (eventArg.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
+
+  useEffect(() => {
+    const firstFocusable = document.querySelector<HTMLElement>(
+      '.wb-dialog select, .wb-dialog textarea, .wb-dialog button',
+    );
+    firstFocusable?.focus();
+  }, []);
+
   return (
     <div className="wb-dialog-backdrop" role="presentation">
       <section className="wb-dialog" role="dialog" aria-modal="true" aria-labelledby="report-title">
@@ -1091,7 +1309,7 @@ function ReportDialog({
             <label>
               Optional note
               <textarea
-                maxLength={501}
+                maxLength={500}
                 value={reportNote}
                 onChange={(eventArg) => onNoteChange(eventArg.target.value)}
                 placeholder="Tell us what looked wrong. Max 500 characters."

@@ -2,7 +2,7 @@ import { faqItems } from '@/content/worldBossContent';
 import type { WorldBossEventDto } from '@/types/worldBoss';
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://diablo4worldbosstimer.live';
 const pageUrl = `${siteUrl.replace(/\/$/, '')}/`;
 
 export type JsonLdSchema = Record<string, unknown> & {
@@ -19,16 +19,13 @@ function getEventJsonLd(event: WorldBossEventDto | null): JsonLdSchema | null {
     '@type': 'Event',
     name: `Diablo 4 World Boss: ${event.boss_name}`,
     startDate: event.spawn_time_utc,
+    endDate: event.spawn_time_utc,
     eventStatus: 'https://schema.org/EventScheduled',
-    eventAttendanceMode: 'https://schema.org/OnlineEventAttendanceMode',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     url: pageUrl,
     location: {
       '@type': 'Place',
-      name: event.location_name || 'Diablo 4 world boss arena',
-      address: {
-        '@type': 'PostalAddress',
-        addressRegion: event.region || 'Sanctuary',
-      },
+      name: `${event.location_name}, ${event.region} — Diablo 4`,
     },
     description: `Next Diablo 4 world boss spawn for ${event.boss_name} with live countdown, local time, location, and confidence status.`,
   };
@@ -53,24 +50,6 @@ export function getWorldBossJsonLd(
           text: item.answer,
         },
       })),
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Home',
-          item: siteUrl,
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: 'Diablo 4 World Boss Timer',
-          item: pageUrl,
-        },
-      ],
     },
     {
       '@context': 'https://schema.org',

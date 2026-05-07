@@ -37,7 +37,7 @@ export const isoDateSchema = z.string().refine(isIsoDate, {
 /* ------------------------------------------------------------------ */
 
 export const worldBossReportSchema = z.object({
-  event_id: z.string().uuid().nullable().optional(),
+  event_id: z.uuid().nullable().optional(),
   report_type: reportTypeSchema,
   user_note: z.string().max(500).optional(),
   user_timezone: z.string().optional(),
@@ -46,7 +46,7 @@ export const worldBossReportSchema = z.object({
 });
 
 export const adminOverrideSchema = z.object({
-  event_id: z.string().min(1),
+  event_id: z.uuid(),
   spawn_time_utc: isoDateSchema.optional(),
   boss_name: z.string().optional(),
   boss_slug: z.string().optional(),
@@ -86,11 +86,11 @@ export const adminAnchorResetSchema = z.object({
 
 export const adminAnnouncementSchema = z.object({
   enabled: z.boolean(),
-  message: z.string().nullable().optional(),
+  message: z.string().max(1000).nullable().optional(),
 });
 
 export const adminReportStatusSchema = z.object({
-  report_id: z.string().min(1),
+  report_id: z.uuid(),
   status: z.enum(['open', 'resolved', 'ignored']),
 });
 

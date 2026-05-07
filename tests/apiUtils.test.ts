@@ -44,4 +44,18 @@ describe('isIsoDate', () => {
   it('rejects empty string', () => {
     expect(isIsoDate('')).toBe(false);
   });
+
+  it('rejects non-ISO formats like date-only or locale strings', () => {
+    expect(isIsoDate('2025-06-15')).toBe(false);
+    expect(isIsoDate('June 15, 2025')).toBe(false);
+    expect(isIsoDate('2025/06/15T12:00:00Z')).toBe(false);
+  });
+
+  it('rejects invalid calendar dates like Feb 30', () => {
+    expect(isIsoDate('2024-02-30T00:00:00Z')).toBe(false);
+  });
+
+  it('rejects ISO strings with timezone offset instead of Z', () => {
+    expect(isIsoDate('2025-06-15T12:00:00+00:00')).toBe(false);
+  });
 });

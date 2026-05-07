@@ -4,8 +4,8 @@ import { apiErrorResponse, databaseNotConfiguredResponse, parseJsonBody } from '
 import {
   getAdminAnnouncement,
   updateAdminAnnouncement,
-  isWorldBossDatabaseConfigured,
 } from '@/lib/worldBossData';
+import { isDatabaseConfigured } from '@/lib/neonDb';
 import { validateOrError, adminAnnouncementSchema } from '@/lib/validation';
 
 export async function GET(request: Request) {
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     return unauthorizedResponse();
   }
 
-  if (!isWorldBossDatabaseConfigured()) {
+  if (!isDatabaseConfigured()) {
     return databaseNotConfiguredResponse();
   }
 
@@ -22,8 +22,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: true, announcement });
   } catch (error) {
     console.error('Failed to fetch announcement', error);
-    const message =
-      error instanceof Error ? error.message : 'Failed to fetch announcement.';
+    const message = process.env.NODE_ENV === 'production'
+      ? 'Internal server error'
+      : (error instanceof Error ? error.message : 'Failed to fetch announcement.');
     return apiErrorResponse('FETCH_FAILED', message, 500);
   }
 }
@@ -43,7 +44,7 @@ export async function PATCH(request: Request) {
   const result = validateOrError(adminAnnouncementSchema, raw);
   if ('error' in result) return result.error;
 
-  if (!isWorldBossDatabaseConfigured()) {
+  if (!isDatabaseConfigured()) {
     return databaseNotConfiguredResponse();
   }
 
@@ -53,8 +54,9 @@ export async function PATCH(request: Request) {
     );
   } catch (error) {
     console.error('Failed to update announcement', error);
-    const message =
-      error instanceof Error ? error.message : 'Failed to update announcement.';
+    const message = process.env.NODE_ENV === 'production'
+      ? 'Internal server error'
+      : (error instanceof Error ? error.message : 'Failed to update announcement.');
     return apiErrorResponse('UPDATE_FAILED', message, 500);
   }
 }

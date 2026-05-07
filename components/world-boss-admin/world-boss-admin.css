@@ -353,6 +353,14 @@
   color: var(--wb-text-secondary);
 }
 
+/* --- Reduced motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .wba-spinner,
+  .wba-spin {
+    animation: none;
+  }
+}
+
 /* --- Responsive --- */
 @media (min-width: 768px) {
   .wba-row-3 {

@@ -7,7 +7,7 @@
   --wb-border-strong: #2a2f3a;
   --wb-text-primary: #f8fafc;
   --wb-text-secondary: #a1a1aa;
-  --wb-text-muted: #8b8b96;
+  --wb-text-muted: #9d9da8;
   --wb-primary: #9f2b25;
   --wb-primary-hover: #b8322a;
   --wb-primary-active: #7f1d1d;
@@ -65,6 +65,23 @@ a {
 :focus-visible {
   outline: 2px solid var(--wb-focus);
   outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.5rem;
+  background: var(--wb-primary);
+  color: var(--wb-bg-page);
+  font-weight: 700;
+  border-radius: 0 0 0.5rem 0.5rem;
+  z-index: 9999;
+  transition: top 0.2s;
+}
+.skip-link:focus {
+  top: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

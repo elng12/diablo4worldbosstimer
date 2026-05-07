@@ -15,7 +15,7 @@ export const faqItems = [
   {
     question: 'Where are Diablo 4 world boss locations?',
     answer:
-      'Diablo 4 world boss locations are fixed arenas across Sanctuary, including Fractured Peaks, Scosglen, Dry Steppes, Kehjistan, and Hawezar. The locations section shows the current spawn point, region, nearby waypoint, and map option.',
+      'Diablo 4 world boss locations are fixed arenas across Sanctuary, including Fractured Peaks, Scosglen, Kehjistan, Hawezar, and Nahantu. The locations section shows the current spawn point, region, nearby waypoint, and map option.',
   },
   {
     question: 'Is Diablo 4 World Boss Timer accurate?',
@@ -95,7 +95,7 @@ export const seoSections = [
     heading: 'Diablo 4 World Boss Locations',
     paragraphs: [
       'Diablo 4 world boss locations section helps you reach the arena faster. Instead of forcing you to open a large map first, the page highlights the current spawn point, region, nearby waypoint, and short route note.',
-      'Core spawn locations include The Crucible in Fractured Peaks, Caen Alderwood in Scosglen, Saraan Caldera in Scosglen, Writhing Mire in Dry Steppes, Seared Basin in Kehjistan, and Krannik Hold in Hawezar. If a waypoint has not been manually verified yet, the page displays it as a suggested waypoint.',
+      'Core spawn locations include The Crucible in Fractured Peaks, Saraan Caldera in Scosglen, Caen Alderwood in Scosglen, Seared Basin in Kehjistan, Fields of Hatred in Kehjistan, Krannik Hold in Hawezar, Crane Pool in Hawezar, and Ruins of Rakhat Keep: Inner in Nahantu. If a waypoint has not been manually verified yet, the page displays it as a suggested waypoint.',
     ],
   },
   {

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { isAdminAuthorized, unauthorizedResponse } from '@/lib/adminAuth';
 import { apiErrorResponse, databaseNotConfiguredResponse, parseJsonBody } from '@/lib/apiUtils';
-import { updateWorldBossReportStatus, isWorldBossDatabaseConfigured } from '@/lib/worldBossData';
+import { updateWorldBossReportStatus } from '@/lib/worldBossData';
+import { isDatabaseConfigured } from '@/lib/neonDb';
 import { validateOrError, adminReportStatusSchema } from '@/lib/validation';
 
 export async function POST(request: Request) {
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
   const result = validateOrError(adminReportStatusSchema, raw);
   if ('error' in result) return result.error;
 
-  if (!isWorldBossDatabaseConfigured()) {
+  if (!isDatabaseConfigured()) {
     return databaseNotConfiguredResponse();
   }
 
@@ -29,8 +30,9 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error('Failed to update report status', error);
-    const message =
-      error instanceof Error ? error.message : 'Failed to update report status.';
+    const message = process.env.NODE_ENV === 'production'
+      ? 'Internal server error'
+      : (error instanceof Error ? error.message : 'Failed to update report status.');
     return apiErrorResponse('UPDATE_FAILED', message, 500);
   }
 }

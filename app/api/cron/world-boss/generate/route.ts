@@ -3,15 +3,15 @@ import { cronUnauthorizedResponse, isCronAuthorized } from '@/lib/cronAuth';
 import { apiErrorResponse, clampLimit, databaseNotConfiguredResponse } from '@/lib/apiUtils';
 import {
   generateFutureWorldBossSchedule,
-  isWorldBossDatabaseConfigured,
 } from '@/lib/worldBossData';
+import { isDatabaseConfigured } from '@/lib/neonDb';
 
 async function handleGenerate(request: Request) {
   if (!isCronAuthorized(request)) {
     return cronUnauthorizedResponse();
   }
 
-  if (!isWorldBossDatabaseConfigured()) {
+  if (!isDatabaseConfigured()) {
     return databaseNotConfiguredResponse();
   }
 
@@ -23,8 +23,9 @@ async function handleGenerate(request: Request) {
     return NextResponse.json(await generateFutureWorldBossSchedule(limit));
   } catch (error) {
     console.error('World boss schedule generation failed', error);
-    const message =
-      error instanceof Error ? error.message : 'World boss schedule generation failed.';
+    const message = process.env.NODE_ENV === 'production'
+      ? 'Internal server error'
+      : (error instanceof Error ? error.message : 'World boss schedule generation failed.');
     return apiErrorResponse('GENERATION_FAILED', message, 500);
   }
 }

@@ -95,6 +95,25 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function isAlgorithmSetting(value: unknown): value is AlgorithmSetting {
+  if (!isRecord(value)) return false;
+  return (
+    (value.interval_minutes === undefined || typeof value.interval_minutes === 'number') &&
+    (value.algorithm_version === undefined || typeof value.algorithm_version === 'string') &&
+    (value.season_version === undefined || typeof value.season_version === 'string' || value.season_version === null) &&
+    (value.default_confidence_status === undefined ||
+      typeof value.default_confidence_status === 'string')
+  );
+}
+
+function isGenerationControl(value: unknown): value is GenerationControl {
+  if (!isRecord(value)) return false;
+  return (
+    (value.prediction_enabled === undefined || typeof value.prediction_enabled === 'boolean') &&
+    (value.reason === undefined || typeof value.reason === 'string' || value.reason === null)
+  );
+}
+
 function isBossConfig(value: unknown): value is BossConfig {
   return (
     isRecord(value) &&
@@ -132,11 +151,11 @@ function normalizeSettings(
     if (row.key === 'location_rotation') {
       settings.location_rotation = normalizeArray(row.value, isLocationConfig);
     }
-    if (row.key === 'world_boss_algorithm' && isRecord(row.value)) {
-      settings.world_boss_algorithm = row.value as AlgorithmSetting;
+    if (row.key === 'world_boss_algorithm' && isAlgorithmSetting(row.value)) {
+      settings.world_boss_algorithm = row.value;
     }
-    if (row.key === 'generation_control' && isRecord(row.value)) {
-      settings.generation_control = row.value as GenerationControl;
+    if (row.key === 'generation_control' && isGenerationControl(row.value)) {
+      settings.generation_control = row.value;
     }
     if (row.key === 'nahantu_rule' && isRecord(row.value)) {
       settings.nahantu_rule = row.value;

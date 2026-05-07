@@ -62,14 +62,14 @@ describe('worldBossReportSchema', () => {
 describe('adminOverrideSchema', () => {
   it('accepts minimal valid override', () => {
     const result = adminOverrideSchema.safeParse({
-      event_id: 'some-id',
+      event_id: '550e8400-e29b-41d4-a716-446655440000',
     });
     expect(result.success).toBe(true);
   });
 
   it('accepts full valid override', () => {
     const result = adminOverrideSchema.safeParse({
-      event_id: 'some-id',
+      event_id: '550e8400-e29b-41d4-a716-446655440000',
       spawn_time_utc: '2025-06-15T12:00:00Z',
       boss_name: 'Avarice',
       confidence_status: 'Confirmed',
@@ -80,7 +80,7 @@ describe('adminOverrideSchema', () => {
 
   it('rejects invalid ISO date', () => {
     const result = adminOverrideSchema.safeParse({
-      event_id: 'some-id',
+      event_id: '550e8400-e29b-41d4-a716-446655440000',
       spawn_time_utc: 'not-a-date',
     });
     expect(result.success).toBe(false);
@@ -88,7 +88,7 @@ describe('adminOverrideSchema', () => {
 
   it('rejects invalid confidence_status', () => {
     const result = adminOverrideSchema.safeParse({
-      event_id: 'some-id',
+      event_id: '550e8400-e29b-41d4-a716-446655440000',
       confidence_status: 'Invalid',
     });
     expect(result.success).toBe(false);
@@ -96,7 +96,7 @@ describe('adminOverrideSchema', () => {
 
   it('accepts null location_name', () => {
     const result = adminOverrideSchema.safeParse({
-      event_id: 'some-id',
+      event_id: '550e8400-e29b-41d4-a716-446655440000',
       location_name: null,
     });
     expect(result.success).toBe(true);
@@ -199,13 +199,21 @@ describe('adminAnnouncementSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('rejects message over 1000 chars', () => {
+    const result = adminAnnouncementSchema.safeParse({
+      enabled: true,
+      message: 'x'.repeat(1001),
+    });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe('adminReportStatusSchema', () => {
   it('accepts valid status values', () => {
     for (const status of ['open', 'resolved', 'ignored']) {
       const result = adminReportStatusSchema.safeParse({
-        report_id: 'some-id',
+        report_id: '550e8400-e29b-41d4-a716-446655440000',
         status,
       });
       expect(result.success).toBe(true);

@@ -13,7 +13,12 @@ function timingSafeCompare(a: string, b: string): boolean {
 
 export function isCronAuthorized(request: Request) {
   const expectedSecret = process.env.CRON_SECRET;
-  if (!expectedSecret) return false;
+  if (!expectedSecret) {
+    console.warn('Cron auth failed: CRON_SECRET not configured', {
+      timestamp: new Date().toISOString(),
+    });
+    return false;
+  }
 
   const bearerToken = getBearerToken(request);
   if (bearerToken && timingSafeCompare(bearerToken, expectedSecret)) {
@@ -25,6 +30,9 @@ export function isCronAuthorized(request: Request) {
     return true;
   }
 
+  console.warn('Cron auth failed: invalid or missing token', {
+    timestamp: new Date().toISOString(),
+  });
   return false;
 }
 

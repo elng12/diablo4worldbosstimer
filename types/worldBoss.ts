@@ -14,7 +14,8 @@ export type ReportType = (typeof REPORT_TYPES)[number];
 export interface WorldBossEventDto {
   event_id: string;
   boss_name: string;
-  boss_slug: 'ashava' | 'avarice' | 'wandering-death' | string;
+  /** Known values: 'ashava' | 'avarice' | 'wandering-death', but extensible for future bosses */
+  boss_slug: string;
   spawn_time_utc: string;
   region: string | null;
   location_name: string | null;
@@ -62,11 +63,11 @@ export interface WorldBossReportPayload {
 export interface AdminWorldBossReportDto {
   id: string;
   event_id: string | null;
-  report_type: string;
+  report_type: ReportType;
   user_note: string | null;
   user_timezone: string | null;
   displayed_time: string | null;
-  status: string;
+  status: 'open' | 'resolved' | 'ignored';
   created_at: string | null;
 }
 

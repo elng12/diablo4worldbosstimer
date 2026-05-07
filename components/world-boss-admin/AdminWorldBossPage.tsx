@@ -94,7 +94,7 @@ export function AdminWorldBossPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  async function updateReportStatus(reportId: string, status: string) {
+  async function updateReportStatus(reportId: string, status: 'open' | 'resolved' | 'ignored') {
     try {
       const res = await fetch('/api/admin/world-boss/report-status', {
         method: 'POST',

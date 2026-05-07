@@ -4,20 +4,22 @@ import { mockCurrentResponse } from '@/data/worldBossMock';
 import { getCurrentWorldBoss } from '@/lib/worldBossData';
 import { getWorldBossJsonLd } from '@/lib/worldBossJsonLd';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com').replace(/\/$/, '');
 
 export const metadata: Metadata = {
   title: 'Diablo 4 World Boss Timer - D4 World Boss Tracker',
   description:
     'Use Diablo 4 World Boss Timer schedule and Diablo 4 World Boss Tracker guide to check the next spawn, local time, locations, alerts, and rewards.',
   alternates: {
-    canonical: 'https://diablo4worldbosstimer.live/',
+    canonical: `${siteUrl}/`,
   },
   openGraph: {
     title: 'Diablo 4 World Boss Timer - D4 World Boss Tracker',
     description:
       'Use Diablo 4 World Boss Timer schedule and Diablo 4 World Boss Tracker guide to check the next spawn, local time, locations, alerts, and rewards.',
-    url: '/',
+    url: `${siteUrl}/`,
     type: 'website',
     images: [
       {

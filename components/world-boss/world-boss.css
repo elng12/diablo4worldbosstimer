@@ -57,7 +57,7 @@
 }
 
 .wb-menu-button {
-  height: 34px;
+  min-height: 44px;
   padding: 0 8px;
   border-radius: 6px;
   background: transparent;
@@ -387,7 +387,8 @@
 
 .wb-schedule-row button {
   grid-column: 1 / -1;
-  min-height: 32px;
+  min-height: 44px;
+  min-width: 44px;
   border-radius: 6px;
   background: var(--wb-bg-surface);
   font-size: 12px;
@@ -395,8 +396,8 @@
 }
 
 .wb-schedule-row .wb-icon-button {
-  width: 36px;
-  min-height: 32px;
+  width: 44px;
+  min-height: 44px;
   padding: 0;
 }
 
@@ -462,7 +463,7 @@
 }
 
 .wb-reminder-options button {
-  min-height: 36px;
+  min-height: 44px;
   border: 1px solid var(--wb-border-subtle);
   border-radius: 6px;
   background: var(--wb-bg-card-elevated);
@@ -742,4 +743,13 @@
   .wb-schedule-card {
     min-height: 420px;
   }
+}
+
+.wb-primary-button:focus-visible,
+.wb-secondary-button:focus-visible,
+.wb-text-button:focus-visible,
+.wb-icon-button:focus-visible,
+.wb-menu-button:focus-visible {
+  outline: 2px solid var(--wb-focus);
+  outline-offset: 3px;
 }

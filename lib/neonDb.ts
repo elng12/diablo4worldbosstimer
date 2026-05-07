@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import { Pool, PoolClient } from 'pg';
 
 export function isDatabaseConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL);
@@ -14,6 +14,9 @@ export function getPool(): Pool {
     _pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       max: 5,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+      maxUses: 10,
     });
     _pool.on('error', (err) => {
       console.error('Unexpected database pool error', err);
@@ -43,4 +46,22 @@ export async function execute(text: string, params: unknown[] = []): Promise<num
   const pool = getPool();
   const result = await pool.query(text, params);
   return result.rowCount ?? 0;
+}
+
+export async function withTransaction<T>(
+  fn: (client: PoolClient) => Promise<T>,
+): Promise<T> {
+  const pool = getPool();
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await fn(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
 }

@@ -40,36 +40,57 @@ const LOCATIONS = [
     location_name: 'The Crucible',
     region: 'Fractured Peaks',
     nearest_waypoint: 'Yelesna',
-    waypoint_confidence: 'Suggested' as const,
+    waypoint_confidence: 'Confirmed' as const,
     route_note: 'Travel east from Yelesna and follow the arena road.',
   },
   {
-    location_name: 'Caen Adar',
+    location_name: 'Saraan Caldera',
     region: 'Scosglen',
     nearest_waypoint: 'Corbach',
-    waypoint_confidence: 'Suggested' as const,
+    waypoint_confidence: 'Confirmed' as const,
     route_note:
       'Ride northwest from Corbach and enter the arena from the southern path.',
   },
   {
-    location_name: 'Saraan Caldera',
-    region: 'Dry Steppes',
-    nearest_waypoint: null,
-    waypoint_confidence: 'Needs manual verification' as const,
-    route_note: 'Approach from the closest unlocked Dry Steppes waypoint.',
+    location_name: 'Caen Alderwood',
+    region: 'Scosglen',
+    nearest_waypoint: 'Tirmair',
+    waypoint_confidence: 'Suggested' as const,
+    route_note: null,
   },
   {
     location_name: 'Seared Basin',
     region: 'Kehjistan',
-    nearest_waypoint: null,
-    waypoint_confidence: 'Needs manual verification' as const,
+    nearest_waypoint: 'Iron Wolves Encampment',
+    waypoint_confidence: 'Confirmed' as const,
     route_note: null,
   },
   {
-    location_name: 'Fields of Desecration',
+    location_name: 'Fields of Hatred',
+    region: 'Kehjistan',
+    nearest_waypoint: 'Alzuuda',
+    waypoint_confidence: 'Suggested' as const,
+    route_note: null,
+  },
+  {
+    location_name: 'Krannik Hold',
     region: 'Hawezar',
-    nearest_waypoint: null,
-    waypoint_confidence: 'Needs manual verification' as const,
+    nearest_waypoint: 'Wejinhani',
+    waypoint_confidence: 'Confirmed' as const,
+    route_note: null,
+  },
+  {
+    location_name: 'Crane Pool',
+    region: 'Hawezar',
+    nearest_waypoint: 'Backwater',
+    waypoint_confidence: 'Suggested' as const,
+    route_note: null,
+  },
+  {
+    location_name: 'Ruins of Rakhat Keep: Inner',
+    region: 'Nahantu',
+    nearest_waypoint: 'Zarbinzet',
+    waypoint_confidence: 'Suggested' as const,
     route_note: null,
   },
 ] as const;
@@ -104,10 +125,6 @@ function makeEvent(
     season_version: 'S13',
     ...overrides,
   };
-}
-
-function makeUpcoming(count: number): WorldBossEventDto[] {
-  return Array.from({ length: count }, (_, i) => makeEvent(i));
 }
 
 // Make one event Confirmed (index 2), one Needs verification (index 4)

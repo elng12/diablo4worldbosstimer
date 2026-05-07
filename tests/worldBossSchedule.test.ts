@@ -5,6 +5,9 @@ import {
   type WorldBossAnchorRow,
 } from '@/lib/worldBossSchedule';
 
+// baseTime before the anchor so firstFutureOffset = 0 and rotation starts at index 0
+const beforeAnchorTime = new Date('2025-06-01T11:00:00Z');
+
 const baseAnchor: WorldBossAnchorRow = {
   id: 'test-anchor',
   anchor_spawn_time_utc: '2025-06-01T12:00:00Z',
@@ -108,14 +111,14 @@ describe('buildWorldBossGenerationPlan', () => {
   });
 
   it('generates events with correct boss rotation', () => {
-    const plan = buildWorldBossGenerationPlan(baseAnchor, baseSettings, 3);
+    const plan = buildWorldBossGenerationPlan(baseAnchor, baseSettings, 3, beforeAnchorTime);
     expect(plan.events[0].boss_name).toBe('Ashava');
     expect(plan.events[1].boss_name).toBe('Avarice');
     expect(plan.events[2].boss_name).toBe('Wandering Death');
   });
 
   it('generates events with correct location rotation', () => {
-    const plan = buildWorldBossGenerationPlan(baseAnchor, baseSettings, 3);
+    const plan = buildWorldBossGenerationPlan(baseAnchor, baseSettings, 3, beforeAnchorTime);
     expect(plan.events[0].location_name).toBe('The Crucible');
     expect(plan.events[1].location_name).toBe('Saraan Caldera');
     expect(plan.events[2].location_name).toBe('Seared Basin');
@@ -144,7 +147,7 @@ describe('buildWorldBossGenerationPlan', () => {
   });
 
   it('wraps rotation when index exceeds array length', () => {
-    const plan = buildWorldBossGenerationPlan(baseAnchor, baseSettings, 6);
+    const plan = buildWorldBossGenerationPlan(baseAnchor, baseSettings, 6, beforeAnchorTime);
     // 3 bosses, so index 3 wraps to 0
     expect(plan.events[3].boss_name).toBe('Ashava');
     expect(plan.events[3].location_name).toBe('The Crucible');
@@ -189,14 +192,14 @@ describe('buildWorldBossGenerationPlan', () => {
   });
 
   it('resolves location_pool data for rotation locations', () => {
-    const plan = buildWorldBossGenerationPlan(baseAnchor, baseSettings, 1);
+    const plan = buildWorldBossGenerationPlan(baseAnchor, baseSettings, 1, beforeAnchorTime);
     expect(plan.events[0].nearest_waypoint).toBe('Yelesna');
     expect(plan.events[0].waypoint_confidence).toBe('Confirmed');
   });
 
   it('uses rotation_index offset for wrapping', () => {
     const anchor = { ...baseAnchor, boss_rotation_index: 2 };
-    const plan = buildWorldBossGenerationPlan(anchor, baseSettings, 2);
+    const plan = buildWorldBossGenerationPlan(anchor, baseSettings, 2, beforeAnchorTime);
     // Index 2+0 = Wandering Death, index 2+1 wraps to Ashava
     expect(plan.events[0].boss_name).toBe('Wandering Death');
     expect(plan.events[1].boss_name).toBe('Ashava');

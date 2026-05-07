@@ -19,6 +19,9 @@ export async function POST(request: Request) {
     return NextResponse.json(await createWorldBossReport(result.data as WorldBossReportPayload));
   } catch (error) {
     console.error('Failed to create world boss report', error);
-    return apiErrorResponse('REPORT_CREATE_FAILED', 'Report could not be submitted.', 500);
+    const message = process.env.NODE_ENV === 'production'
+      ? 'Internal server error'
+      : 'Report could not be submitted.';
+    return apiErrorResponse('REPORT_CREATE_FAILED', message, 500);
   }
 }

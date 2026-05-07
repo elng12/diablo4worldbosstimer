@@ -21,12 +21,11 @@ const event: WorldBossEventDto = {
 };
 
 describe('getWorldBossJsonLd', () => {
-  it('includes FAQ, breadcrumb, web page, and event schemas when an event exists', () => {
+  it('includes FAQ, web page, and event schemas when an event exists', () => {
     const schemas = getWorldBossJsonLd(event);
 
     expect(schemas.map((schema) => schema['@type'])).toEqual([
       'FAQPage',
-      'BreadcrumbList',
       'WebPage',
       'Event',
     ]);
@@ -37,7 +36,6 @@ describe('getWorldBossJsonLd', () => {
 
     expect(schemas.map((schema) => schema['@type'])).toEqual([
       'FAQPage',
-      'BreadcrumbList',
       'WebPage',
     ]);
   });
@@ -49,7 +47,7 @@ describe('getWorldBossJsonLd', () => {
 
     expect(pageSchema).toMatchObject({
       name: 'Diablo 4 World Boss Timer',
-      url: 'https://example.com/',
+      url: 'https://diablo4worldbosstimer.live/',
       about: {
         '@type': 'VideoGame',
         name: 'Diablo 4',
@@ -65,15 +63,12 @@ describe('getWorldBossJsonLd', () => {
     expect(eventSchema).toMatchObject({
       name: 'Diablo 4 World Boss: Ashava',
       startDate: '2026-05-06T02:30:00.000Z',
+      endDate: '2026-05-06T02:30:00.000Z',
       eventStatus: 'https://schema.org/EventScheduled',
-      eventAttendanceMode: 'https://schema.org/OnlineEventAttendanceMode',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
       location: {
         '@type': 'Place',
-        name: 'The Crucible',
-        address: {
-          '@type': 'PostalAddress',
-          addressRegion: 'Fractured Peaks',
-        },
+        name: 'The Crucible, Fractured Peaks — Diablo 4',
       },
     });
   });

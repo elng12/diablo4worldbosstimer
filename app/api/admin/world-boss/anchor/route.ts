@@ -6,10 +6,10 @@ import {
   parseJsonBody,
 } from '@/lib/apiUtils';
 import {
-  isWorldBossDatabaseConfigured,
   resetWorldBossAnchor,
   type AdminAnchorResetPayload,
 } from '@/lib/worldBossData';
+import { isDatabaseConfigured } from '@/lib/neonDb';
 import { validateOrError, adminAnchorResetSchema } from '@/lib/validation';
 
 export async function POST(request: Request) {
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   const result = validateOrError(adminAnchorResetSchema, raw);
   if ('error' in result) return result.error;
 
-  if (!isWorldBossDatabaseConfigured()) {
+  if (!isDatabaseConfigured()) {
     return databaseNotConfiguredResponse();
   }
 
@@ -37,8 +37,9 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error('World boss anchor reset failed', error);
-    const message =
-      error instanceof Error ? error.message : 'World boss anchor reset failed.';
+    const message = process.env.NODE_ENV === 'production'
+      ? 'Internal server error'
+      : (error instanceof Error ? error.message : 'World boss anchor reset failed.');
     return apiErrorResponse('ANCHOR_RESET_FAILED', message, 500);
   }
 }
