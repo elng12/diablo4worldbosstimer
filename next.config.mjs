@@ -6,11 +6,12 @@ const scriptSrc =
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  async rewrites() {
+  async redirects() {
     return [
       {
-        source: '/',
-        destination: '/diablo-4-world-boss-timer/',
+        source: '/diablo-4-world-boss-timer',
+        destination: '/',
+        permanent: true,
       },
     ];
   },

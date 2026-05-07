@@ -21,13 +21,13 @@ const event: WorldBossEventDto = {
 };
 
 describe('getWorldBossJsonLd', () => {
-  it('includes FAQ, breadcrumb, web app, and event schemas when an event exists', () => {
+  it('includes FAQ, breadcrumb, web page, and event schemas when an event exists', () => {
     const schemas = getWorldBossJsonLd(event);
 
     expect(schemas.map((schema) => schema['@type'])).toEqual([
       'FAQPage',
       'BreadcrumbList',
-      'WebApplication',
+      'WebPage',
       'Event',
     ]);
   });
@@ -38,8 +38,23 @@ describe('getWorldBossJsonLd', () => {
     expect(schemas.map((schema) => schema['@type'])).toEqual([
       'FAQPage',
       'BreadcrumbList',
-      'WebApplication',
+      'WebPage',
     ]);
+  });
+
+  it('describes the timer page without software app rich result requirements', () => {
+    const pageSchema = getWorldBossJsonLd(event).find(
+      (schema) => schema['@type'] === 'WebPage',
+    );
+
+    expect(pageSchema).toMatchObject({
+      name: 'Diablo 4 World Boss Timer',
+      url: 'https://example.com/',
+      about: {
+        '@type': 'VideoGame',
+        name: 'Diablo 4',
+      },
+    });
   });
 
   it('maps the next world boss to Event JSON-LD fields', () => {

@@ -74,14 +74,27 @@ export function getWorldBossJsonLd(
     },
     {
       '@context': 'https://schema.org',
-      '@type': 'WebApplication',
+      '@type': 'WebPage',
       name: 'Diablo 4 World Boss Timer',
-      alternateName: ['Diablo 4 World Boss Tracker', 'D4 World Boss Timer', 'Diablo 4 Boss Timer'],
+      alternateName: [
+        'Diablo 4 World Boss Tracker',
+        'D4 World Boss Timer',
+        'Diablo 4 Boss Timer',
+      ],
       url: pageUrl,
-      applicationCategory: 'GameApplication',
-      operatingSystem: 'Any',
       description:
         'Use Diablo 4 World Boss Timer schedule and Diablo 4 World Boss Tracker guide to check the next spawn, local time, locations, alerts, and reward notes.',
+      about: {
+        '@type': 'VideoGame',
+        name: 'Diablo 4',
+        alternateName: 'Diablo IV',
+      },
+      keywords: [
+        'Diablo 4 World Boss Timer',
+        'Diablo 4 World Boss Tracker',
+        'D4 World Boss schedule',
+        'Diablo 4 boss spawn timer',
+      ],
     },
     getEventJsonLd(event),
   ].filter(isSchema);
